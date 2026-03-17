@@ -4,4 +4,3 @@ node_modules/
 build/
 dist/
 .DS_Store
-frontend/public/models/
