@@ -11,7 +11,6 @@ export default function Register() {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [registeredUser, setRegisteredUser] = useState(null);
 
   const [form, setForm] = useState({
     name: '', email: '', password: '', studentId: '', course: '', batch: '',
@@ -24,7 +23,6 @@ export default function Register() {
     setLoading(true);
     try {
       const res = await register(form);
-      setRegisteredUser(res.user);
       toast.success('Account created! Now register your face.');
       setStep(1);
     } catch (err) {
@@ -45,61 +43,123 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-white px-4 py-10">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-white px-4 py-8">
+      <div className="w-full max-w-sm sm:max-w-md">
+
         {/* Header */}
-        <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-14 h-14 bg-indigo-600 rounded-2xl mb-3">
-            <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="text-center mb-5 sm:mb-6">
+          <div className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 bg-indigo-600 rounded-2xl mb-3">
+            <svg className="w-6 h-6 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Create account</h1>
-          <p className="text-gray-500 text-sm mt-1">Step {step + 1} of {STEPS.length}: {STEPS[step]}</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Create account</h1>
+          <p className="text-gray-500 text-sm mt-1">
+            Step {step + 1} of {STEPS.length}: {STEPS[step]}
+          </p>
         </div>
 
         {/* Step indicator */}
-        <div className="flex gap-2 mb-6">
+        <div className="flex gap-2 mb-5 sm:mb-6">
           {STEPS.map((s, i) => (
-            <div key={i} className={`flex-1 h-1.5 rounded-full transition-colors ${i <= step ? 'bg-indigo-600' : 'bg-gray-200'}`} />
+            <div
+              key={i}
+              className={`flex-1 h-1.5 rounded-full transition-colors ${i <= step ? 'bg-indigo-600' : 'bg-gray-200'}`}
+            />
           ))}
         </div>
 
         <div className="card">
           {step === 0 && (
-            <form onSubmit={handleAccountSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Full name</label>
-                  <input name="name" value={form.name} onChange={handleChange} className="input-field" placeholder="John Doe" required />
-                </div>
-                <div className="col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email address</label>
-                  <input type="email" name="email" value={form.email} onChange={handleChange} className="input-field" placeholder="you@institute.edu" required />
-                </div>
+            <form onSubmit={handleAccountSubmit} className="space-y-3 sm:space-y-4">
+              {/* Full name — full width */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Full name</label>
+                <input
+                  name="name"
+                  value={form.name}
+                  onChange={handleChange}
+                  className="input-field"
+                  placeholder="John Doe"
+                  required
+                />
+              </div>
+
+              {/* Email — full width */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email address</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  className="input-field"
+                  placeholder="you@institute.edu"
+                  required
+                />
+              </div>
+
+              {/* Student ID + Course — 2 cols on sm+, stacked on mobile */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Student ID</label>
-                  <input name="studentId" value={form.studentId} onChange={handleChange} className="input-field" placeholder="STU001" required />
+                  <input
+                    name="studentId"
+                    value={form.studentId}
+                    onChange={handleChange}
+                    className="input-field"
+                    placeholder="STU001"
+                    required
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Course</label>
-                  <input name="course" value={form.course} onChange={handleChange} className="input-field" placeholder="B.Tech CSE" />
+                  <input
+                    name="course"
+                    value={form.course}
+                    onChange={handleChange}
+                    className="input-field"
+                    placeholder="B.Tech CSE"
+                  />
                 </div>
+              </div>
+
+              {/* Batch + Password — 2 cols on sm+, stacked on mobile */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Batch</label>
-                  <input name="batch" value={form.batch} onChange={handleChange} className="input-field" placeholder="2024-28" />
+                  <input
+                    name="batch"
+                    value={form.batch}
+                    onChange={handleChange}
+                    className="input-field"
+                    placeholder="2024-28"
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                  <input type="password" name="password" value={form.password} onChange={handleChange} className="input-field" placeholder="••••••" required minLength={6} />
+                  <input
+                    type="password"
+                    name="password"
+                    value={form.password}
+                    onChange={handleChange}
+                    className="input-field"
+                    placeholder="••••••"
+                    required
+                    minLength={6}
+                  />
                 </div>
               </div>
+
               <button type="submit" className="btn-primary w-full" disabled={loading}>
                 {loading ? 'Creating account...' : 'Continue'}
               </button>
+
               <p className="text-center text-sm text-gray-500">
                 Already have an account?{' '}
-                <Link to="/login" className="text-indigo-600 font-medium hover:underline">Sign in</Link>
+                <Link to="/login" className="text-indigo-600 font-medium hover:underline">
+                  Sign in
+                </Link>
               </p>
             </form>
           )}
@@ -107,7 +167,10 @@ export default function Register() {
           {step === 1 && (
             <div>
               <FaceCapture mode="register" onSuccess={handleFaceRegistered} />
-              <button onClick={handleSkipFace} className="btn-secondary w-full mt-3 text-xs">
+              <button
+                onClick={handleSkipFace}
+                className="btn-secondary w-full mt-3 text-xs"
+              >
                 Skip for now (do this from dashboard later)
               </button>
             </div>
