@@ -1,4 +1,4 @@
-# Smart Attendance System
+# AI Based Smart Attendance System
 
 <div align="center">
 
@@ -93,36 +93,36 @@ Administrators have a separate dashboard to monitor attendance in real time, vie
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                     Frontend (React)                     │
+│                     Frontend (React)                    │
 │  ┌─────────────┐  ┌──────────────┐  ┌────────────────┐  │
 │  │   Student   │  │    Admin     │  │  face-api.js   │  │
 │  │  Dashboard  │  │  Dashboard   │  │  (Webcam AI)   │  │
 │  └──────┬──────┘  └──────┬───────┘  └───────┬────────┘  │
-│         │                │                   │           │
-│         └────────────────┴───────────────────┘           │
-│                          │                               │
-│              REST API + Socket.io (WS)                   │
+│         │                │                   │          │
+│         └────────────────┴───────────────────┘          │
+│                          │                              │
+│              REST API + Socket.io (WS)                  │
 └──────────────────────────┬──────────────────────────────┘
                            │
 ┌──────────────────────────▼──────────────────────────────┐
-│                    Backend (Express)                      │
+│                    Backend (Express)                    │
 │  ┌──────────────┐  ┌─────────────┐  ┌────────────────┐  │
 │  │ Auth Routes  │  │ Attendance  │  │  Admin Routes  │  │
 │  │   /api/auth  │  │   Routes    │  │  /api/admin    │  │
 │  └──────────────┘  └─────────────┘  └────────────────┘  │
-│                                                          │
+│                                                         │
 │  ┌──────────────┐  ┌─────────────┐  ┌────────────────┐  │
 │  │     JWT      │  │  IP Check   │  │   Socket.io    │  │
 │  │ Middleware   │  │ Middleware  │  │    Server      │  │
 │  └──────────────┘  └─────────────┘  └────────────────┘  │
-│                                                          │
-│  ┌──────────────────────────────────────────────────┐    │
-│  │           node-cron (Auto-absent at 10:30 AM)    │    │
-│  └──────────────────────────────────────────────────┘    │
+│                                                         │
+│  ┌──────────────────────────────────────────────────┐   │
+│  │           node-cron (Auto-absent at 10:30 AM)    │   │
+│  └──────────────────────────────────────────────────┘   │
 └──────────────────────────┬──────────────────────────────┘
                            │
 ┌──────────────────────────▼──────────────────────────────┐
-│                   MongoDB Database                        │
+│                   MongoDB Database                      │
 │         ┌──────────────┐    ┌──────────────┐            │
 │         │  Users       │    │  Attendance  │            │
 │         │  Collection  │    │  Collection  │            │
@@ -215,7 +215,7 @@ smart-attendance/
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/smart-attendance.git
+git clone https://github.com/chandankumar171/smart-attendance.git
 cd smart-attendance
 ```
 
@@ -269,6 +269,7 @@ AUTO_ABSENT_MINUTE=30
 ADMIN_EMAIL=admin@institute.edu
 ADMIN_PASSWORD=Admin@123
 CLIENT_URL=http://localhost:3000
+TZ=Asia/Kolkata
 ```
 
 Create `frontend/.env.development`:
