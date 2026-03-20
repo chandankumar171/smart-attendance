@@ -68,7 +68,7 @@ const markAttendance = async (req, res, next) => {
     const THRESHOLD = 0.5;
 
     if (distance > THRESHOLD) {
-      return res.status(401).json({
+      return res.status(422).json({
         success: false,
         message: 'Face not recognized. Please try again.',
         confidence: distance,

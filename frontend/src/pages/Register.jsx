@@ -80,7 +80,7 @@ export default function Register() {
                   value={form.name}
                   onChange={handleChange}
                   className="input-field"
-                  placeholder="John Doe"
+                  placeholder="Chandan Kumar Sahoo"
                   required
                 />
               </div>
@@ -119,7 +119,7 @@ export default function Register() {
                     value={form.course}
                     onChange={handleChange}
                     className="input-field"
-                    placeholder="B.Tech CSE"
+                    placeholder="MCA"
                   />
                 </div>
               </div>

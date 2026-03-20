@@ -15,10 +15,20 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (res) => res,
   (err) => {
-    if (err.response?.status === 401) {
+    const status  = err.response?.status;
+    const message = err.response?.data?.message || '';
+
+    // Only redirect to login if it's a real auth failure
+    // NOT for face mismatch (422) or other business logic errors
+    if (status === 401 && (
+      message.includes('Token') ||
+      message.includes('Not authorized') ||
+      message.includes('User not found')
+    )) {
       localStorage.removeItem('token');
       window.location.href = '/login';
     }
+
     return Promise.reject(err);
   }
 );
