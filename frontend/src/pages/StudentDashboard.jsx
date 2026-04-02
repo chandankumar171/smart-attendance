@@ -16,18 +16,35 @@ export default function StudentDashboard() {
   const [windowStatus, setWindowStatus] = useState(null);
   const [stats, setStats]             = useState(null);
   const [loadingToday, setLoadingToday] = useState(true);
+  const [isIpBlocked, setIsIpBlocked] = useState(false);//added to track IP block status
 
   const fetchTodayStatus = useCallback(async () => {
-    try {
-      const res = await api.get('/attendance/today');
-      setTodayRecord(res.data.todayRecord);
-      setWindowStatus(res.data.windowStatus);
-    } catch (err) {
-      console.error('Failed to fetch today status', err);
-    } finally {
-      setLoadingToday(false);
+  try {
+    const res = await api.get('/attendance/today');
+    setTodayRecord(res.data.todayRecord);
+    setWindowStatus(res.data.windowStatus);
+    setIsIpBlocked(false); // ✅ IP is allowed
+  } catch (err) {
+    if (err.response?.status === 403) {
+      setIsIpBlocked(true); // ❌ IP blocked
     }
-  }, []);
+    console.error('Failed to fetch today status', err);
+  } finally {
+    setLoadingToday(false);
+  }
+}, []);
+
+  // const fetchTodayStatus = useCallback(async () => {
+  //   try {
+  //     const res = await api.get('/attendance/today');
+  //     setTodayRecord(res.data.todayRecord);
+  //     setWindowStatus(res.data.windowStatus);
+  //   } catch (err) {
+  //     console.error('Failed to fetch today status', err);
+  //   } finally {
+  //     setLoadingToday(false);
+  //   }
+  // }, []);
 
   const fetchStats = useCallback(async () => {
     try {
@@ -56,11 +73,19 @@ export default function StudentDashboard() {
   };
 
   const getWindowLabel = () => {
-    if (todayRecord) return null;
-    if (!windowStatus) return { text: 'Attendance closed', color: 'text-red-600', bg: 'bg-red-50' };
-    if (windowStatus === 'late') return { text: 'Late window open (until 10:00 AM)', color: 'text-yellow-700', bg: 'bg-yellow-50' };
-    return { text: 'Attendance window open (until 9:30 AM for Present)', color: 'text-green-700', bg: 'bg-green-50' };
-  };
+  if (todayRecord) return null;
+  if (isIpBlocked) return { text: ' Not on institute WiFi', color: 'text-red-600', bg: 'bg-red-50' };
+  if (!windowStatus) return { text: 'Attendance closed', color: 'text-red-600', bg: 'bg-red-50' };
+  if (windowStatus === 'late') return { text: 'Late window open (until 10:00 AM)', color: 'text-yellow-700', bg: 'bg-yellow-50' };
+  return { text: 'Attendance window open (until 9:30 AM for Present)', color: 'text-green-700', bg: 'bg-green-50' };
+};
+
+  // const getWindowLabel = () => {
+  //   if (todayRecord) return null;
+  //   if (!windowStatus) return { text: 'Attendance closed', color: 'text-red-600', bg: 'bg-red-50' };
+  //   if (windowStatus === 'late') return { text: 'Late window open (until 10:00 AM)', color: 'text-yellow-700', bg: 'bg-yellow-50' };
+  //   return { text: 'Attendance window open (until 9:30 AM for Present)', color: 'text-green-700', bg: 'bg-green-50' };
+  // };
 
   const windowLabel = getWindowLabel();
   const faceAlert   = !user?.isFaceRegistered;
@@ -251,11 +276,31 @@ export default function StudentDashboard() {
                 <p className="font-semibold text-gray-900">Attendance already recorded for today</p>
                 <p className="text-sm text-gray-500 mt-1 capitalize">Status: {todayRecord.status}</p>
               </div>
-            ) : !windowStatus ? (
-              <div className="card text-center">
-                <p className="font-semibold text-red-600">Attendance window is closed</p>
-                <p className="text-sm text-gray-500 mt-1">Attendance closes at 10:00 AM each day.</p>
-              </div>
+            // ) : !windowStatus ? (
+            //   <div className="card text-center">
+            //     <p className="font-semibold text-red-600">Attendance window is closed</p>
+            //     <p className="text-sm text-gray-500 mt-1">Attendance closes at 10:00 AM each day.</p>
+            //   </div>
+
+
+            ) : !windowStatus || isIpBlocked ? (
+  <div className="card text-center">
+    {isIpBlocked ? (
+      <>
+        <p className="font-semibold text-red-600">Not connected to institute WiFi</p>
+        <p className="text-sm text-gray-500 mt-1">Please connect to institute WiFi to mark attendance.</p>
+      </>
+    ) : (
+      <>
+        <p className="font-semibold text-red-600">Attendance window is closed</p>
+        <p className="text-sm text-gray-500 mt-1">Attendance closes at 10:00 AM each day.</p>
+      </>
+    )}
+  </div>
+
+
+
+
             ) : !user?.isFaceRegistered ? (
               <div className="card text-center">
                 <p className="font-semibold text-amber-600">Face not registered</p>
