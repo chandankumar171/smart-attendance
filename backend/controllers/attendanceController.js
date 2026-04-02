@@ -10,10 +10,10 @@ const getAttendanceStatus = () => {
   const m = now.getMinutes();
   const totalMinutes = h * 60 + m;
 
-  const lateH  = parseInt(process.env.ATTENDANCE_LATE_HOUR  || 9);
-  const lateM  = parseInt(process.env.ATTENDANCE_LATE_MINUTE || 30);
-  const closeH = parseInt(process.env.ATTENDANCE_CLOSE_HOUR  || 10);
-  const closeM = parseInt(process.env.ATTENDANCE_CLOSE_MINUTE || 0);
+  const lateH  = parseInt(process.env.ATTENDANCE_LATE_HOUR  );
+  const lateM  = parseInt(process.env.ATTENDANCE_LATE_MINUTE );
+  const closeH = parseInt(process.env.ATTENDANCE_CLOSE_HOUR  );
+  const closeM = parseInt(process.env.ATTENDANCE_CLOSE_MINUTE );
 
   const lateThreshold  = lateH  * 60 + lateM;
   const closeThreshold = closeH * 60 + closeM;
