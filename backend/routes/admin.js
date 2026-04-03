@@ -7,6 +7,7 @@ const {
   getStats,
   exportAttendance,
   manualMarkAttendance,
+  updateStudentFace,  // ← ADD THIS
 } = require('../controllers/adminController');
 const { protect, adminOnly } = require('../middleware/authMiddleware');
 
@@ -18,5 +19,6 @@ router.get('/attendance/student/:id', getStudentAttendance);
 router.get('/stats', getStats);
 router.get('/export', exportAttendance);                   // ?date=YYYY-MM-DD
 router.post('/attendance/manual', manualMarkAttendance);
+router.put('/students/:id/face', updateStudentFace); // ← ADD THIS
 
 module.exports = router;

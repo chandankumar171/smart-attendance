@@ -205,6 +205,37 @@ const manualMarkAttendance = async (req, res, next) => {
   }
 };
 
+
+
+// @desc   Admin updates a student's face descriptor
+// @route  PUT /api/admin/students/:id/face
+const updateStudentFace = async (req, res, next) => {
+  try {
+    const { faceDescriptor } = req.body;
+
+    if (!faceDescriptor || !Array.isArray(faceDescriptor)) {
+      return res.status(400).json({ success: false, message: 'Face descriptor required.' });
+    }
+
+    const student = await User.findById(req.params.id);
+    if (!student) {
+      return res.status(404).json({ success: false, message: 'Student not found.' });
+    }
+
+    student.faceDescriptor   = faceDescriptor;
+    student.isFaceRegistered = true;
+    await student.save();
+
+    res.json({ success: true, message: `Face updated for ${student.name}.` });
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+
+
+
 module.exports = {
   getAllStudents,
   getDailyAttendance,
@@ -212,4 +243,5 @@ module.exports = {
   getStats,
   exportAttendance,
   manualMarkAttendance,
+  updateStudentFace,  // ← ADD THIS
 };

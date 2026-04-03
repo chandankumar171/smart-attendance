@@ -12,7 +12,8 @@ const STATUS = {
   ERROR:     'error',
 };
 
-export default function FaceCapture({ mode = 'register', onSuccess }) {
+// export default function FaceCapture({ mode = 'register', onSuccess }) {
+export default function FaceCapture({ mode = 'register', onSuccess, adminMode = false }) {
   const webcamRef  = useRef(null);
   const canvasRef  = useRef(null);
   const intervalRef = useRef(null);
@@ -84,12 +85,28 @@ export default function FaceCapture({ mode = 'register', onSuccess }) {
 
       const descriptorArray = Array.from(descriptor);
 
+      //new logic
       if (mode === 'register') {
-        await api.post('/auth/register-face', { faceDescriptor: descriptorArray });
-        setStatus(STATUS.SUCCESS);
-        setMessage('Face registered successfully!');
-        onSuccess?.();
-      } else {
+  if (adminMode) {
+    setStatus(STATUS.SUCCESS);
+    setMessage('Face captured successfully!');
+    onSuccess?.(descriptorArray);
+  } else {
+    await api.post('/auth/register-face', { faceDescriptor: descriptorArray });
+    setStatus(STATUS.SUCCESS);
+    setMessage('Face registered successfully!');
+    onSuccess?.();
+  }
+}
+
+      // if (mode === 'register') {
+      //   await api.post('/auth/register-face', { faceDescriptor: descriptorArray });
+      //   setStatus(STATUS.SUCCESS);
+      //   setMessage('Face registered successfully!');
+      //   onSuccess?.();
+      // } 
+    
+      else {
         const res = await api.post('/attendance/mark', { faceDescriptor: descriptorArray });
         setStatus(STATUS.SUCCESS);
         setMessage(res.data.message);

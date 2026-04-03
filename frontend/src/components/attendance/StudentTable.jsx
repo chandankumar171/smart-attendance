@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import api from '../../utils/api';
+import FaceCapture from '../face/FaceCapture';
 
 export default function StudentTable({ students }) {
   const [selected, setSelected]           = useState(null);
   const [studentDetail, setStudentDetail] = useState(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
+  const [updatingFaceFor, setUpdatingFaceFor] = useState(null);
 
   const viewStudent = async (student) => {
     setSelected(student);
@@ -19,6 +21,49 @@ export default function StudentTable({ students }) {
       setLoadingDetail(false);
     }
   };
+
+  //new added
+  const handleAdminFaceUpdate = async (descriptorArray) => {
+  try {
+    await api.put(`/admin/students/${updatingFaceFor._id}/face`, {
+      faceDescriptor: descriptorArray,
+    });
+    toast.success(`Face updated for ${updatingFaceFor.name}!`);
+    setUpdatingFaceFor(null);
+  } catch {
+    toast.error('Failed to update face.');
+  }
+};
+
+// ── Admin Update Face view ───────────────────────────────
+if (updatingFaceFor) {
+  return (
+    <div>
+      <button
+        onClick={() => setUpdatingFaceFor(null)}
+        className="flex items-center gap-1 text-sm text-indigo-600 hover:underline mb-4"
+      >
+        ← Back
+      </button>
+      <div className="w-full max-w-sm mx-auto">
+        <h2 className="text-lg font-bold text-gray-900 mb-1">
+          Update Face — {updatingFaceFor.name}
+        </h2>
+        <p className="text-sm text-gray-500 mb-2">
+          Student ID: {updatingFaceFor.studentId}
+        </p>
+        <p className="text-sm text-gray-500 mb-5">
+          Position the student in front of the camera and capture their face.
+        </p>
+        <FaceCapture
+          mode="register"
+          adminMode={true}
+          onSuccess={handleAdminFaceUpdate}
+        />
+      </div>
+    </div>
+  );
+}
 
   // ── Student detail view ──────────────────────────────────
   if (selected) {
@@ -43,11 +88,24 @@ export default function StudentTable({ students }) {
                 {selected.batch  ? ` · ${selected.batch}`  : ''}
               </p>
             </div>
-            <span className={`shrink-0 text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${
+            {/* <span className={`shrink-0 text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${
               selected.isFaceRegistered ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
             }`}>
               {selected.isFaceRegistered ? 'Face registered' : 'No face data'}
-            </span>
+            </span> */}
+            <div className="flex flex-col items-end gap-2">
+  <span className={`shrink-0 text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${
+    selected.isFaceRegistered ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+  }`}>
+    {selected.isFaceRegistered ? 'Face registered' : 'No face data'}
+  </span>
+  <button
+    onClick={() => setUpdatingFaceFor(selected)}
+    className="text-xs font-medium text-white bg-amber-500 hover:bg-amber-600 px-2 py-1 rounded-lg transition-colors whitespace-nowrap"
+  >
+    Update Face
+  </button>
+</div>
           </div>
 
           {/* Stats grid */}
@@ -194,12 +252,12 @@ export default function StudentTable({ students }) {
                   )}
                 </div>
               </div>
-              <button
+               <button
                 onClick={() => viewStudent(s)}
                 className="shrink-0 text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 px-3 py-1.5 rounded-lg transition-colors"
               >
                 View history
-              </button>
+              </button> 
             </div>
           </div>
         ))}

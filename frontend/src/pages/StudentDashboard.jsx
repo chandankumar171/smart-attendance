@@ -94,7 +94,7 @@ export default function StudentDashboard() {
     { key: VIEWS.HOME,    label: 'Overview' },
     { key: VIEWS.MARK,    label: 'Mark Attendance' },
     { key: VIEWS.HISTORY, label: 'History' },
-    { key: VIEWS.FACE,    label: user?.isFaceRegistered ? 'Update Face' : 'Register Face' },
+    // { key: VIEWS.FACE,    label: user?.isFaceRegistered ? 'Update Face' : 'Register Face' },
   ];
 
   const bottomTabs = [
