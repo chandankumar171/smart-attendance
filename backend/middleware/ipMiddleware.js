@@ -1,34 +1,38 @@
 const ipRangeCheck = require('ip-range-check');
+const AllowedIP = require('../models/AllowedIP');
 
-/**
- * Validates that the request comes from the institute's allowed IP range.
- * Allowed ranges are set via ALLOWED_IP_RANGES env variable (comma-separated CIDR).
- * This runs on the server, so it cannot be spoofed from the browser.
- */
-const checkInstituteNetwork = (req, res, next) => {
-  const clientIp = req.clientIp; // set by request-ip middleware in app.js
+const checkInstituteNetwork = async (req, res, next) => {
+  try {
+    const clientIp = req.clientIp;
+    const normalizedIp = clientIp?.replace(/^::ffff:/, '') || '';
 
-  // Parse allowed ranges from env (e.g. "192.168.0.0/24,127.0.0.1/32,::1/128")
-  const allowedRanges = (process.env.ALLOWED_IP_RANGES || '127.0.0.1/32')
-    .split(',')
-    .map((r) => r.trim())
-    .filter(Boolean);
+    // Fetch active IP ranges from DB
+    const ipDocs = await AllowedIP.find({ isActive: true }).select('cidr');
 
-  // Normalize IPv6-mapped IPv4 addresses (e.g. "::ffff:192.168.0.5" → "192.168.0.5")
-  const normalizedIp = clientIp?.replace(/^::ffff:/, '') || '';
+    // Fallback to ENV if DB is empty
+    let allowedRanges = ipDocs.map((d) => d.cidr);
+    if (allowedRanges.length === 0) {
+      allowedRanges = (process.env.ALLOWED_IP_RANGES || '127.0.0.1/32')
+        .split(',')
+        .map((r) => r.trim())
+        .filter(Boolean);
+    }
 
-  const isAllowed = ipRangeCheck(normalizedIp, allowedRanges);
+    const isAllowed = ipRangeCheck(normalizedIp, allowedRanges);
 
-  if (!isAllowed) {
-    return res.status(403).json({
-      success: false,
-      message: 'Attendance is only allowed when connected to institute WiFi.',
-      clientIp: normalizedIp, // send back so client can display it
-    });
+    if (!isAllowed) {
+      return res.status(403).json({
+        success: false,
+        message: 'Attendance is only allowed when connected to institute WiFi.',
+        clientIp: normalizedIp,
+      });
+    }
+
+    req.clientIpNormalized = normalizedIp;
+    next();
+  } catch (err) {
+    next(err);
   }
-
-  req.clientIpNormalized = normalizedIp;
-  next();
 };
 
 module.exports = { checkInstituteNetwork };

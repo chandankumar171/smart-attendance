@@ -233,6 +233,64 @@ const updateStudentFace = async (req, res, next) => {
 };
 
 
+// @desc   Get all allowed IP ranges
+// @route  GET /api/admin/ip-ranges
+const getAllowedIPs = async (req, res, next) => {
+  try {
+    const AllowedIP = require('../models/AllowedIP');
+    const ips = await AllowedIP.find().sort({ createdAt: -1 });
+    res.json({ success: true, ips });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// @desc   Add a new allowed IP range
+// @route  POST /api/admin/ip-ranges
+const addAllowedIP = async (req, res, next) => {
+  try {
+    const AllowedIP = require('../models/AllowedIP');
+    const { label, cidr } = req.body;
+
+    if (!label || !cidr) {
+      return res.status(400).json({ success: false, message: 'Label and CIDR are required.' });
+    }
+
+    const ip = await AllowedIP.create({ label, cidr, addedBy: req.user._id });
+    res.status(201).json({ success: true, ip });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// @desc   Delete an allowed IP range
+// @route  DELETE /api/admin/ip-ranges/:id
+const deleteAllowedIP = async (req, res, next) => {
+  try {
+    const AllowedIP = require('../models/AllowedIP');
+    await AllowedIP.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: 'IP range deleted.' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// @desc   Toggle active status of an IP range
+// @route  PATCH /api/admin/ip-ranges/:id/toggle
+const toggleAllowedIP = async (req, res, next) => {
+  try {
+    const AllowedIP = require('../models/AllowedIP');
+    const ip = await AllowedIP.findById(req.params.id);
+    if (!ip) return res.status(404).json({ success: false, message: 'IP range not found.' });
+
+    ip.isActive = !ip.isActive;
+    await ip.save();
+    res.json({ success: true, ip });
+  } catch (err) {
+    next(err);
+  }
+};
+
 
 
 
@@ -244,4 +302,8 @@ module.exports = {
   exportAttendance,
   manualMarkAttendance,
   updateStudentFace,  // ← ADD THIS
+  getAllowedIPs,     // ← ADD
+  addAllowedIP,     // ← ADD
+  deleteAllowedIP,  // ← ADD
+  toggleAllowedIP,  // ← ADD
 };

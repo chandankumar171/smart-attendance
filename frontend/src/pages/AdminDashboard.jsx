@@ -7,8 +7,10 @@ import StatsCard from '../components/ui/StatsCard';
 import Navbar from '../components/ui/Navbar';
 import StudentTable from '../components/attendance/StudentTable';
 import DailyAttendanceTable from '../components/attendance/DailyAttendanceTable';
+import IPManager from '../components/admin/IPManager';
 
-const VIEWS = { OVERVIEW: 'overview', DAILY: 'daily', STUDENTS: 'students' };
+// const VIEWS = { OVERVIEW: 'overview', DAILY: 'daily', STUDENTS: 'students' };
+const VIEWS = { OVERVIEW: 'overview', DAILY: 'daily', STUDENTS: 'students', IP: 'ip' };
 
 export default function AdminDashboard() {
   const { user, logout } = useAuth();
@@ -127,6 +129,14 @@ export default function AdminDashboard() {
         </svg>
       ),
     },
+    {
+  key: VIEWS.IP, label: 'Network',
+  icon: (active) => (
+    <svg className="w-5 h-5" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={active ? 0 : 2} viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+    </svg>
+  ),
+},
   ];
 
   return (
@@ -146,7 +156,11 @@ export default function AdminDashboard() {
                   : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}
             >
-              {tab.label === 'Live Feed' ? 'Live Feed' : tab.label === 'Daily' ? 'Daily Records' : 'All Students'}
+              {/* {tab.label === 'Live Feed' ? 'Live Feed' : tab.label === 'Daily' ? 'Daily Records' : 'All Students'} */}
+              {tab.label === 'Live Feed' ? 'Live Feed' 
+  : tab.label === 'Daily' ? 'Daily Records' 
+  : tab.label === 'Network' ? 'Network / IP'   // ← ADD
+  : 'All Students'}
             </button>
           ))}
         </div>
@@ -241,6 +255,9 @@ export default function AdminDashboard() {
 
         {/* ── All Students ── */}
         {view === VIEWS.STUDENTS && <StudentTable students={students} />}
+
+        {/* ── IP Manager ── */}
+{view === VIEWS.IP && <IPManager />}
       </main>
 
       {/* ── Bottom Navigation Bar — mobile only ── */}
