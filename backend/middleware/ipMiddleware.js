@@ -2,6 +2,7 @@ const ipRangeCheck = require('ip-range-check');
 const AllowedIP = require('../models/AllowedIP');
 
 const checkInstituteNetwork = async (req, res, next) => {
+  // console.log('IP CHECK HIT:', req.method, req.path);
   try {
     const clientIp = req.clientIp;
     const normalizedIp = clientIp?.replace(/^::ffff:/, '') || '';

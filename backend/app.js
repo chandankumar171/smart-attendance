@@ -23,14 +23,14 @@ app.use(express.json({ limit: '10mb' })); // large limit for face descriptor pay
 app.use(express.urlencoded({ extended: true }));
 app.set('trust proxy', true); // ADD THIS before requestIp.mw()
 app.use(requestIp.mw());
-app.use(requestIp.mw()); // attaches req.clientIp to every request
+// app.use(requestIp.mw()); // attaches req.clientIp to every request
 
 // ── Routes ──────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
 app.use('/api/student', studentRoutes);
 app.use('/api/admin', adminRoutes);
-// app.use('/api/attendance', attendanceRoutes);
-app.use('/api/attendance', checkInstituteNetwork, attendanceRoutes);
+app.use('/api/attendance', attendanceRoutes);
+// app.use('/api/attendance', checkInstituteNetwork, attendanceRoutes);
 
 // ── Health check ────────────────────────────────────────
 app.get('/api/health', (req, res) => {

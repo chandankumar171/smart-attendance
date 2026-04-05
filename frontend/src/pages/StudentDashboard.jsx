@@ -18,33 +18,35 @@ export default function StudentDashboard() {
   const [loadingToday, setLoadingToday] = useState(true);
   const [isIpBlocked, setIsIpBlocked] = useState(false);//added to track IP block status
 
-  const fetchTodayStatus = useCallback(async () => {
-  try {
-    const res = await api.get('/attendance/today');
-    setTodayRecord(res.data.todayRecord);
-    setWindowStatus(res.data.windowStatus);
-    setIsIpBlocked(false); // ✅ IP is allowed
-  } catch (err) {
-    if (err.response?.status === 403) {
-      setIsIpBlocked(true); // ❌ IP blocked
-    }
-    console.error('Failed to fetch today status', err);
-  } finally {
-    setLoadingToday(false);
-  }
-}, []);
+//   const fetchTodayStatus = useCallback(async () => {
+//   try {
+//     const res = await api.get('/attendance/today');
+//     setTodayRecord(res.data.todayRecord);
+//     setWindowStatus(res.data.windowStatus);
+//     setIsIpBlocked(false); //  IP is allowed
+//   } catch (err) {
+//     if (err.response?.status === 403) {
+//       setIsIpBlocked(true); //  IP blocked
+//     }
+//     console.error('Failed to fetch today status', err);
+//   } finally {
+//     setLoadingToday(false);
+//   }
+// }, []);
 
-  // const fetchTodayStatus = useCallback(async () => {
-  //   try {
-  //     const res = await api.get('/attendance/today');
-  //     setTodayRecord(res.data.todayRecord);
-  //     setWindowStatus(res.data.windowStatus);
-  //   } catch (err) {
-  //     console.error('Failed to fetch today status', err);
-  //   } finally {
-  //     setLoadingToday(false);
-  //   }
-  // }, []);
+  const fetchTodayStatus = useCallback(async () => {
+    try {
+      const res = await api.get('/attendance/today');
+      // console.log('today response:', res.data);
+      setTodayRecord(res.data.todayRecord);
+      setWindowStatus(res.data.windowStatus);
+    } catch (err) {
+      console.error('Failed to fetch today status', err);
+    } finally {
+      setLoadingToday(false);
+    }
+  }, []);
+
 
   const fetchStats = useCallback(async () => {
     try {
@@ -54,6 +56,19 @@ export default function StudentDashboard() {
       console.error('Failed to fetch stats', err);
     }
   }, []);
+
+  const checkIpAccess = useCallback(async () => {
+  try {
+    await api.post('/attendance/mark', { faceDescriptor: [] });
+    setIsIpBlocked(false);
+  } catch (err) {
+    if (err.response?.status === 403) {
+      setIsIpBlocked(true);
+    } else {
+      setIsIpBlocked(false); // 400/422 = IP fine, descriptor just invalid
+    }
+  }
+}, []);
 
   useEffect(() => {
     fetchTodayStatus();
@@ -72,13 +87,21 @@ export default function StudentDashboard() {
     setTimeout(() => setView(VIEWS.HOME), 1500);
   };
 
-  const getWindowLabel = () => {
+const getWindowLabel = () => {
   if (todayRecord) return null;
-  if (isIpBlocked) return { text: ' Not on institute WiFi', color: 'text-red-600', bg: 'bg-red-50' };
+  if (isIpBlocked && view === VIEWS.MARK) return { text: '📶 Not on institute WiFi', color: 'text-red-600', bg: 'bg-red-50' };
   if (!windowStatus) return { text: 'Attendance closed', color: 'text-red-600', bg: 'bg-red-50' };
   if (windowStatus === 'late') return { text: 'Late window open (until 10:00 AM)', color: 'text-yellow-700', bg: 'bg-yellow-50' };
   return { text: 'Attendance window open (until 9:30 AM for Present)', color: 'text-green-700', bg: 'bg-green-50' };
 };
+
+//   const getWindowLabel = () => {
+//   if (todayRecord) return null;
+//   if (isIpBlocked) return { text: ' Not on institute WiFi', color: 'text-red-600', bg: 'bg-red-50' };
+//   if (!windowStatus) return { text: 'Attendance closed', color: 'text-red-600', bg: 'bg-red-50' };
+//   if (windowStatus === 'late') return { text: 'Late window open (until 10:00 AM)', color: 'text-yellow-700', bg: 'bg-yellow-50' };
+//   return { text: 'Attendance window open (until 9:30 AM for Present)', color: 'text-green-700', bg: 'bg-green-50' };
+// };
 
   // const getWindowLabel = () => {
   //   if (todayRecord) return null;
@@ -100,41 +123,86 @@ export default function StudentDashboard() {
   const bottomTabs = [
     {
       key: VIEWS.HOME, label: 'Overview',
+      // icon: (active) => (
+      //   <svg className="w-5 h-5" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={active ? 0 : 2} viewBox="0 0 24 24">
+      //     <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+      //   </svg>
+      // ),
       icon: (active) => (
-        <svg className="w-5 h-5" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={active ? 0 : 2} viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-        </svg>
-      ),
+  <svg
+    className="w-5 h-5"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+    />
+  </svg>
+)
     },
     {
       key: VIEWS.MARK, label: 'Mark',
+      // icon: (active) => (
+      //   <svg className="w-5 h-5" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={active ? 0 : 2} viewBox="0 0 24 24">
+      //     <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      //   </svg>
+      // ),
       icon: (active) => (
-        <svg className="w-5 h-5" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={active ? 0 : 2} viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      ),
+  <svg
+    className="w-5 h-5"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+    />
+  </svg>
+)
     },
     {
       key: VIEWS.HISTORY, label: 'History',
+      // icon: (active) => (
+      //   <svg className="w-5 h-5" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={active ? 0 : 2} viewBox="0 0 24 24">
+      //     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+      //   </svg>
+      // ),
       icon: (active) => (
-        <svg className="w-5 h-5" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={active ? 0 : 2} viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-        </svg>
-      ),
+  <svg
+    className="w-5 h-5"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+    />
+  </svg>
+)
     },
-    {
-      key: VIEWS.FACE, label: 'Face',
-      icon: (active) => (
-        <div className="relative">
-          <svg className="w-5 h-5" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={active ? 0 : 2} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          {faceAlert && (
-            <span className="absolute -top-1 -right-1.5 w-3.5 h-3.5 bg-red-500 rounded-full border-2 border-white" />
-          )}
-        </div>
-      ),
-    },
+    // {
+    //   key: VIEWS.FACE, label: 'Face',
+    //   icon: (active) => (
+    //     <div className="relative">
+    //       <svg className="w-5 h-5" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={active ? 0 : 2} viewBox="0 0 24 24">
+    //         <path strokeLinecap="round" strokeLinejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+    //       </svg>
+    //       {faceAlert && (
+    //         <span className="absolute -top-1 -right-1.5 w-3.5 h-3.5 bg-red-500 rounded-full border-2 border-white" />
+    //       )}
+    //     </div>
+    //   ),
+    // },
   ];
 
   return (
@@ -147,7 +215,13 @@ export default function StudentDashboard() {
           {desktopTabs.map((tab) => (
             <button
               key={tab.key}
-              onClick={() => setView(tab.key)}
+              // onClick={() => setView(tab.key)
+              onClick={() => {
+  setView(tab.key);
+  if (tab.key === VIEWS.MARK) checkIpAccess();
+}                    
+              }
+            
               className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors -mb-px ${
                 view === tab.key
                   ? 'border-indigo-600 text-indigo-600'
@@ -332,13 +406,18 @@ export default function StudentDashboard() {
 
       {/* ── Bottom Navigation Bar — mobile only ── */}
       <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-gray-100 shadow-[0_-2px_12px_rgba(0,0,0,0.06)]">
-        <div className="grid grid-cols-4 h-16 px-1">
+        <div className="grid grid-cols-3 h-16 px-1">
           {bottomTabs.map((tab) => {
             const isActive = view === tab.key;
             return (
               <button
                 key={tab.key}
-                onClick={() => setView(tab.key)}
+                //  onClick={() => setView(tab.key)
+                onClick={() => {
+  setView(tab.key);
+  if (tab.key === VIEWS.MARK) checkIpAccess();
+}                            
+                }
                 className="flex flex-col items-center justify-center gap-1 rounded-xl mx-0.5 transition-all active:scale-95"
               >
                 <div className={`p-1.5 rounded-xl transition-colors ${isActive ? 'bg-indigo-50 text-indigo-600' : 'text-gray-400'}`}>
